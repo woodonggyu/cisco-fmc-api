@@ -12,7 +12,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class FMC:
-    """"""
+    """FMC(Firepower Management Center) Class"""
 
     # Can refresh up to three times
     MAX_REFRESHES = 3
@@ -42,6 +42,20 @@ class FMC:
         if self.auto_deploy:
             pass
 
+    def __token_validation(*args):
+        """"""
+        call_func = args[0]
+
+        def wrapper(self):
+            if self.token_refresh_count <= self.MAX_REFRESHES and \
+                    self.access_token is not None:
+                self.__request_an_token_refresh()
+            else:
+                self.__request_an_authentication_token()
+            call_func(self)
+
+        return wrapper
+
     def __request_an_authentication_token(self):
         """The Token Generation Utility provides an authentication token which
         can be used in your REST API client."""
@@ -52,22 +66,13 @@ class FMC:
         url = urljoin(base=self.__host, url=f'{self.ver}/auth/generatetoken',
                       allow_fragments=True)
         headers = {'Content-Type': 'application/json'}
+        auth = requests.auth.HTTPBasicAuth(self.__username, self.__password)
 
         response = self.__request_api(
-            method='POST', url=url, headers=headers,
-            auth=requests.auth.HTTPBasicAuth(self.__username, self.__password),
-            verify=False)
+            method='POST', url=url, headers=headers, auth=auth, verify=False)
 
         self.access_token = response.headers.get('X-auth-access-token')
         self.refresh_token = response.headers.get('X-auth-refresh-token')
-
-    def __token_validation(self):
-        """"""
-        current = datetime.datetime.now()
-
-        if self.token_refresh_count <= self.MAX_REFRESHES and \
-                self.access_token is not None:
-            self.__request_an_token_refresh()
 
     def __request_an_token_refresh(self):
         """FMC REST API authentication tokens are valid for 30 minutes,
@@ -81,7 +86,10 @@ class FMC:
 
         self.token_refresh_count += 1
 
-        return self.__request_api(method='GET', url=url, headers=headers)
+        response = self.__request_api(method='GET', url=url, headers=headers)
+
+        self.access_token = response.headers.get('X-auth-access-token')
+        self.refresh_token = response.headers.get('X-auth-refresh-token')
 
     def __request_api(self, method: str, url: str, headers: Union[dict] = None,
                       auth: Union[HTTPBasicAuth] = None,
@@ -102,14 +110,20 @@ class FMC:
 
 class UnAuthorizedUserError(Exception):
     """"""
-    pass
+
+    def __str__(self):
+        pass
 
 
 class DisconnectedError(Exception):
     """"""
-    pass
+
+    def __str__(self):
+        pass
 
 
 class TokenExpiredError(Exception):
     """"""
-    pass
+
+    def __str__(self):
+        pass
