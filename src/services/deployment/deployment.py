@@ -5,19 +5,16 @@ from urllib.parse import urljoin
 
 
 class Deployment(object):
-    """"""
+    """Deployment Service Class"""
 
     def __init__(self, fmc: object):
 
         self.fmc = fmc
-        self.host = self.fmc._host
-        self.port = self.fmc._port
+        self._host = self.fmc._host
+        self._port = self.fmc._port
         self.domain = self.fmc.domain
-        self.ver = self.fmc.ver
-        # object's uuid
-        self.oid = None
-        # container's uuid
-        self.cid = None
+        self.config = self.fmc.config
+        # default request parameters for 'GET' method
         self.params = {'expanded': True, 'offset': None, 'limit': None}
 
     def deploy_able_devices(self) -> list:
@@ -30,38 +27,43 @@ class Deployment(object):
         :rtype: dict
         """
 
-        url = urljoin(base=f'{self.host}:{self.port}',
-                      url=f'{self.ver}/domain/{self.domain}/'
-                          f'deployment/deployabledevices',
-                      allow_fragments=True)
+        url = f'{self.config}/domain/{self.domain}/deployment/' \
+              f'deployabledevices'
 
         return self.fmc._request_api(method='GET', url=url, headers=None,
                                      params=self.params)
 
-    def deployment_request(self):
+    def deployment_request(self, oid: str):
         """Creates a request for deploying configuration changes to the specified device.
 
             * Permissions: Deploy Configuration to Devices
+
+        :param oid: object's UUID
+        :type oid: str
+
+        :return:
+        :rtype:
         """
 
-        url = urljoin(base=f'{self.host}:{self.port}',
-                      url=f'{self.ver}/domain/{self.domain}/'
-                          f'deployment/deploymentrequests/{self.oid}',
-                      allow_fragments=True)
+        url = f'{self.config}/domain/{self.domain}/deployment/' \
+              f'deploymentrequests/{oid}'
 
         return self.fmc._requests_api(method='POST', url=url, headers=None)
 
-    def pending_changes(self):
+    def pending_changes(self, cid: str):
         """Retrieves all the policy and object changes for the selected device.
 
             * Permissions: Deploy Configuration to Devices
+
+        :param cid: container's UUID
+        :type cid: str
+
+        :return:
+        :rtype:
         """
 
-        url = urljoin(base=f'{self.host}:{self.port}',
-                      url=f'{self.ver}/domain/{self.domain}/'
-                          f'deployment/deployabledevices/'
-                          f'{self.cid}/pendingchanges',
-                      allow_fragments=True)
+        url = f'{self.config}/domain/{self.domain}/deployment/' \
+              f'deployabledevices/{cid}/pendingchanges'
 
         return self.fmc._request_api(method='GET', url=url, headers=None,
                                      params=self.params)
@@ -77,10 +79,7 @@ class Deployment(object):
                 rollbackApplicable:true_or_false
         """
 
-        url = urljoin(base=f'{self.host}:{self.port}',
-                      url=f'{self.ver}/domain/{self.domain}/'
-                          f'deployment/jobhistories/',
-                      allow_fragments=True)
+        url = f'{self.config}/domain/{self.domain}/deployment/jobhistories'
 
         return self.fmc._request_api(method='GET', url=url, headers=None,
                                      params=self.params)
@@ -91,9 +90,6 @@ class Deployment(object):
             * Permissions: Deploy Configuration to Devices
         """
 
-        url = urljoin(base=f'{self.host}:{self.port}',
-                      url=f'{self.ver}/domain/{self.domain}/'
-                          f'deployment/rollbackrequest',
-                      allow_fragments=True)
+        url = f'{self.config}/domain/{self.domain}/deployment/rollbackrequest'
 
         return self.fmc._request_api(method='POST', url=url, headers=None)
