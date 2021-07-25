@@ -272,7 +272,3 @@ cython_debug/
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
-src/services/intelligence/
-src/services/object/
-src/services/policy/
-src/services/status/
