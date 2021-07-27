@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from typing import Union
-from urllib.parse import urljoin
 
 
 class Deployment(object):
